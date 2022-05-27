@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
+enum GenderEnum {
+  female = "female",
+  male = "male",
+  other = "other",
+}
+
 type Input = {
-  todo: string;
-  hello: string;
+  firstName: string;
+  gender: GenderEnum;
 };
 
 export const ToDoList = () => {
@@ -14,15 +20,22 @@ export const ToDoList = () => {
     formState: { errors },
   } = useForm<Input>();
 
-  console.log(watch());
-  const onSubmit: SubmitHandler<Input> = (data) => console.log(data);
+  // console.log(watch());
+  const onSubmit: SubmitHandler<Input> = (data) => {
+    console.log(data);
+  };
 
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input {...register("todo", { required: true })} />
-        <input {...register("hello", { required: true })} />
-        <input type={"submit"} />
+        <label>First Name</label>
+        <input {...register("firstName")} />
+        <label>Gender Selection</label>
+        <select {...register("gender")}>
+          <option value={"female"}>female</option>
+          <option value={"male"}>male</option>
+          <option value={"other"}>other</option>
+        </select>
       </form>
     </div>
   );
