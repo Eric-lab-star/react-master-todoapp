@@ -1,8 +1,10 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
-import { Header } from "./Header";
-import { ToDoList } from "./ToDoList";
+import Header from "./components/Header";
+import ToDoList from "./components/ToDoList";
+import { FormProvider, useForm } from "react-hook-form";
+import CreateToDo from "./components/CreateToDo";
 
 const Main = styled.div`
   display: flex;
@@ -55,15 +57,17 @@ table {
 	border-spacing: 0;
 }
 `;
+
 function App() {
+  const method = useForm();
   return (
     <Main>
       <GlobalStyle />
-      <Routes>
-        <Route path="/" element={<Header />}>
-          <Route index element={<ToDoList />} />
-        </Route>
-      </Routes>
+      <FormProvider {...method}>
+        <Header />
+        <CreateToDo />
+        <ToDoList />
+      </FormProvider>
     </Main>
   );
 }
