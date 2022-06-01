@@ -1,18 +1,16 @@
 import { SubmitHandler, useFormContext } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { useRecoilState } from "recoil";
-import { ToDosState } from "../atoms";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { categoryState, ToDosState } from "../atoms";
 import { IForm } from "../Interfaces";
 
 export default function CreateToDo() {
   const { register, handleSubmit, setValue } = useFormContext<IForm>();
   const [toDos, setToDos] = useRecoilState(ToDosState);
+  const category = useRecoilValue(categoryState);
 
   const onSubmit: SubmitHandler<IForm> = ({ todo }) => {
-    setToDos((pre) => [
-      { text: todo, category: "TODO", id: Date.now() },
-      ...pre,
-    ]);
+    setToDos((pre) => [{ text: todo, category, id: Date.now() }, ...pre]);
     setValue("todo", "");
   };
   return (
