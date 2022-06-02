@@ -1,27 +1,50 @@
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { toDoArrayState } from "../atoms";
+import { DoingSelector, DoneSelector, toDoSelector } from "../atoms";
+import ToDo from "./ToDo";
 
-const ToDoContainer = styled.div`
-  width: 50vw;
-  height: 10vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 100px;
-  word-break: break-all;
+const Wrapper = styled.div`
+  display: flex;
+  width: inherit;
+  justify-content: space-between;
+  margin: 20px;
 `;
 
+const Item = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+`;
 export default function ToDoList() {
-  const toDoArray = useRecoilValue(toDoArrayState);
+  const doing = useRecoilValue(DoingSelector);
+  const done = useRecoilValue(DoneSelector);
+  const todo = useRecoilValue(toDoSelector);
   return (
-    <>
-      {toDoArray.map((todo, index) => (
-        <ToDoContainer key={index}>
-          <div>{todo.todo}</div>
-          <div>
-            <button>Delete</button>
-          </div>
-        </ToDoContainer>
-      ))}
-    </>
+    <Wrapper>
+      <Item>
+        <Title>To Do Section</Title>
+        {todo.map((toDo) => (
+          <ToDo key={toDo.id} {...toDo} />
+        ))}
+      </Item>
+
+      <Item>
+        <Title>Doing Section</Title>
+        {doing.map((toDo) => (
+          <ToDo key={toDo.id} {...toDo} />
+        ))}
+      </Item>
+
+      <Item>
+        <Title>Done Section</Title>
+        {done.map((toDo) => (
+          <ToDo key={toDo.id} {...toDo} />
+        ))}
+      </Item>
+    </Wrapper>
   );
 }
