@@ -1,8 +1,7 @@
+import { FormEvent } from "react";
+import { useRecoilState } from "recoil";
 import styled, { createGlobalStyle } from "styled-components";
-import ToDoForm from "./components/ToDoForm";
-import { Helmet } from "react-helmet";
-import ToDoList from "./components/ToDoList";
-import Header from "./components/Header";
+import { InputData, InputDataSelector } from "./atom";
 
 const GlobalCss = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
@@ -65,15 +64,38 @@ const Main = styled.div`
 `;
 
 export default function App() {
+  const [data, setData] = useRecoilState<number>(InputData);
+  const [dataSelector, setDataSelector] = useRecoilState(InputDataSelector);
+
+  const onChange = (event: FormEvent<HTMLInputElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setData(+value);
+  };
+
+  const toMin = (event: FormEvent<HTMLInputElement>) => {
+    const {
+      currentTarget: { value },
+    } = event;
+    setDataSelector(+value);
+  };
   return (
     <Main>
       <GlobalCss />
-      <Helmet>
-        <title>Your Personal Manager</title>
-      </Helmet>
-      <Header />
-      <ToDoForm />
-      <ToDoList />
+
+      <input
+        type={"number"}
+        onChange={onChange}
+        value={data}
+        placeholder="hour"
+      />
+      <input
+        type={"number"}
+        value={dataSelector}
+        onChange={toMin}
+        placeholder="min"
+      />
     </Main>
   );
 }
