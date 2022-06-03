@@ -14,7 +14,6 @@ interface ITodo {
 }
 
 export default memo(function DraggableCard({ todo, index }: ITodo) {
-  console.log(todo, "is rendered");
   return (
     <Draggable draggableId={todo} index={index}>
       {(magic) => (

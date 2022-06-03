@@ -1,13 +1,9 @@
 import styled, { createGlobalStyle } from "styled-components";
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from "react-beautiful-dnd";
-import { toDoState } from "./atom";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { taskState } from "./atom";
 import { useRecoilState } from "recoil";
-import DraggableCard from "./components/Draggable";
+
+import DroppableArea from "./components/Droppable";
 const GlobalCss = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -57,6 +53,7 @@ input:focus{
 }
 
 `;
+
 const Main = styled.div`
   display: flex;
   justify-content: center;
@@ -70,46 +67,56 @@ const Main = styled.div`
 
 const Boards = styled.div`
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   padding: 20px;
   border-radius: 3px;
   min-height: 300px;
-`;
-const Board = styled.div`
-  background-color: #7f8fa6;
-  padding: 20px;
-  border-radius: 3px;
-  width: 200px;
+  gap: 20px;
 `;
 
 export default function App() {
-  const [toDos, setToDos] = useRecoilState(toDoState);
-  const onDragEnd = ({ draggableId, source, destination }: DropResult) => {
-    if (!draggableId) return;
+  const [task, setTask] = useRecoilState(taskState);
 
-    setToDos((prev) => {
-      const newArray = prev.slice();
-      newArray.splice(source.index, 1);
-      newArray.splice(destination?.index as number, 0, draggableId);
-      return newArray;
-    });
+  const onDragEnd = ({ draggableId, source, destination }: DropResult) => {
+    if (destination) {
+      if (destination.droppableId === source.droppableId) {
+        setTask((prev) => {
+          const newTaskObj = { ...prev };
+          const sourceCopy = newTaskObj[source.droppableId].slice();
+
+          sourceCopy.splice(source.index, 1);
+          sourceCopy.splice(destination?.index, 0, draggableId);
+
+          newTaskObj[source.droppableId] = sourceCopy;
+
+          return newTaskObj;
+        });
+      } else {
+        setTask((prev) => {
+          const newTaskObj = { ...prev };
+          const sourceCopy = newTaskObj[`${source.droppableId}`].slice();
+          const destinationCopy =
+            newTaskObj[`${destination?.droppableId}`].slice();
+          sourceCopy.splice(source.index, 1);
+          destinationCopy.splice(destination?.index, 0, draggableId);
+
+          newTaskObj[`${source.droppableId}`] = sourceCopy;
+          newTaskObj[`${destination?.droppableId}`] = destinationCopy;
+          return newTaskObj;
+        });
+      }
+    }
+
+    return null;
   };
   return (
     <Main>
       <GlobalCss />
-
       <DragDropContext onDragEnd={onDragEnd}>
         <Boards>
-          <Droppable droppableId="one">
-            {(magic) => (
-              <Board ref={magic.innerRef} {...magic.droppableProps}>
-                {toDos.map((todo, index) => (
-                  <DraggableCard key={todo} todo={todo} index={index} />
-                ))}
-                {magic.placeholder}
-              </Board>
-            )}
-          </Droppable>
+          {Object.entries(task).map((value) => (
+            <DroppableArea key={value[0]} id={value[0]} value={value[1]} />
+          ))}
         </Boards>
       </DragDropContext>
     </Main>
