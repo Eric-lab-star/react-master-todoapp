@@ -1,8 +1,12 @@
-import { FormEvent } from "react";
-import { useRecoilState } from "recoil";
 import styled, { createGlobalStyle } from "styled-components";
-import { InputData, InputDataSelector } from "./atom";
-
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
+import { toDoState } from "./atom";
+import { useRecoilState } from "recoil";
 const GlobalCss = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -54,7 +58,7 @@ input:focus{
 `;
 const Main = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100vw;
   height: 100vh;
@@ -63,39 +67,67 @@ const Main = styled.div`
   font-family: santorini-210;
 `;
 
+const Boards = styled.div`
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  padding: 20px;
+  border-radius: 3px;
+  min-height: 300px;
+`;
+const Board = styled.div`
+  background-color: #7f8fa6;
+  padding: 20px;
+  border-radius: 3px;
+  width: 200px;
+`;
+
+const Cards = styled.div`
+  background-color: #273c75;
+  padding: 20px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+`;
+
 export default function App() {
-  const [data, setData] = useRecoilState<number>(InputData);
-  const [dataSelector, setDataSelector] = useRecoilState(InputDataSelector);
+  const [toDos, setToDos] = useRecoilState(toDoState);
+  const onDragEnd = ({ draggableId, source, destination }: DropResult) => {
+    if (!draggableId) return;
 
-  const onChange = (event: FormEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value },
-    } = event;
-    setData(+value);
-  };
-
-  const toMin = (event: FormEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value },
-    } = event;
-    setDataSelector(+value);
+    setToDos((prev) => {
+      const newArray = prev.slice();
+      newArray.splice(source.index, 1);
+      newArray.splice(destination?.index as number, 0, draggableId);
+      return newArray;
+    });
   };
   return (
     <Main>
       <GlobalCss />
 
-      <input
-        type={"number"}
-        onChange={onChange}
-        value={data}
-        placeholder="hour"
-      />
-      <input
-        type={"number"}
-        value={dataSelector}
-        onChange={toMin}
-        placeholder="min"
-      />
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Boards>
+          <Droppable droppableId="one">
+            {(magic) => (
+              <Board ref={magic.innerRef} {...magic.droppableProps}>
+                {toDos.map((todo, index) => (
+                  <Draggable key={todo} draggableId={todo} index={index}>
+                    {(magic) => (
+                      <Cards
+                        ref={magic.innerRef}
+                        {...magic.draggableProps}
+                        {...magic.dragHandleProps}
+                      >
+                        {todo}
+                      </Cards>
+                    )}
+                  </Draggable>
+                ))}
+                {magic.placeholder}
+              </Board>
+            )}
+          </Droppable>
+        </Boards>
+      </DragDropContext>
     </Main>
   );
 }
