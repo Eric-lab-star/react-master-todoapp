@@ -1,9 +1,9 @@
 import { Droppable } from "react-beautiful-dnd";
 import DraggableCard from "./Draggable";
 import styled from "styled-components";
-import { memo } from "react";
+import { FormEvent, memo } from "react";
 import { useForm } from "react-hook-form";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { taskState } from "../atom";
 
 const Board = styled.div`
@@ -28,9 +28,10 @@ interface IArea {
 }
 
 const Area = styled.div<IArea>`
+  margin-top: 20px;
   background: ${(props) =>
     props.isDraggingOver
-      ? "#c7ecee"
+      ? "#cbef5e"
       : props.isdraggingFromThisWith
       ? "#6ab04c"
       : "#badc58"};
@@ -41,9 +42,24 @@ const Area = styled.div<IArea>`
 
 const Form = styled.form`
   width: 100%;
-  & input {
+  display: flex;
+  & input[type="text"] {
     width: 100%;
     box-sizing: border-box;
+    border-style: none;
+    border-bottom: 1px solid white;
+    background-color: inherit;
+    color: gray;
+  }
+  & input[type="submit"] {
+    border-style: none;
+    border-radius: 3px;
+    color: white;
+    background-color: gray;
+    border: 1px solid white;
+    &:hover {
+      cursor: pointer;
+    }
   }
 `;
 
@@ -63,19 +79,21 @@ export default memo(function DroppableArea({ value, category }: ITask) {
     setValue("task", "");
   };
   return (
-    <Droppable droppableId={category}>
-      {(magic, { isDraggingOver, draggingFromThisWith }) => (
-        <Board ref={magic.innerRef} {...magic.droppableProps}>
-          <Title>{category}</Title>
-          <Form onSubmit={handleSubmit(onValid)}>
-            <input
-              {...register("task", { required: true })}
-              placeholder={`write your ${category}`}
-              type="text"
-            />
-            <input type={"submit"} value="Add" />
-          </Form>
+    <Board>
+      <Title>{category}</Title>
+      <Form onSubmit={handleSubmit(onValid)}>
+        <input
+          {...register("task", { required: true })}
+          placeholder={`Write your "${category}"`}
+          type="text"
+        />
+        <input type={"submit"} value="+" />
+      </Form>
+      <Droppable droppableId={category}>
+        {(magic, { isDraggingOver, draggingFromThisWith }) => (
           <Area
+            ref={magic.innerRef}
+            {...magic.droppableProps}
             isDraggingOver={isDraggingOver}
             isdraggingFromThisWith={Boolean(draggingFromThisWith)}
           >
@@ -89,8 +107,8 @@ export default memo(function DroppableArea({ value, category }: ITask) {
             ))}
             {magic.placeholder}
           </Area>
-        </Board>
-      )}
-    </Droppable>
+        )}
+      </Droppable>
+    </Board>
   );
 });
