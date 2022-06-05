@@ -3,6 +3,8 @@ import DraggableCard from "./Draggable";
 import styled from "styled-components";
 import { memo } from "react";
 import { useForm } from "react-hook-form";
+import { useRecoilState } from "recoil";
+import { taskState } from "../atom";
 
 const Board = styled.div`
   background-color: #badc58;
@@ -41,39 +43,54 @@ const Form = styled.form`
   width: 100%;
   & input {
     width: 100%;
+    box-sizing: border-box;
   }
 `;
 
 interface ITask {
-  value: string[];
-  id: string;
+  value: { text: string; id: number }[];
+  category: string;
 }
 
-export default memo(function DroppableArea({ value, id }: ITask) {
+export default memo(function DroppableArea({ value, category }: ITask) {
   const { register, setValue, handleSubmit } = useForm<{ task: string }>();
+  const [task, setTask] = useRecoilState(taskState);
   const onValid = (data: { task: string }) => {
-    console.log(data);
+    console.log(data.task);
+    setTask((prev) => {
+      const newObj = { ...prev };
+      const copyArray = newObj[`${category}`].slice();
+      copyArray.push({ text: data.task, id: Math.random() * 100 });
+      newObj[`${category}`] = copyArray;
+      return newObj;
+    });
     setValue("task", "");
   };
+  console.log(task[`${category}`]);
   return (
-    <Droppable droppableId={id}>
+    <Droppable droppableId={category}>
       {(magic, { isDraggingOver, draggingFromThisWith }) => (
         <Board ref={magic.innerRef} {...magic.droppableProps}>
-          <Title>{id}</Title>
+          <Title>{category}</Title>
           <Form onSubmit={handleSubmit(onValid)}>
             <input
               {...register("task", { required: true })}
-              placeholder={`write your ${id}`}
+              placeholder={`write your ${category}`}
               type="text"
             />
-            <button>Click</button>
+            <input type={"submit"} value="Add" />
           </Form>
           <Area
             isDraggingOver={isDraggingOver}
             isdraggingFromThisWith={Boolean(draggingFromThisWith)}
           >
             {value.map((todo, index) => (
-              <DraggableCard key={todo} todo={todo} index={index} />
+              <DraggableCard
+                key={todo.id}
+                todoText={todo.text}
+                todoId={todo.id}
+                index={index}
+              />
             ))}
             {magic.placeholder}
           </Area>

@@ -12,13 +12,14 @@ const Cards = styled.div<{ isDragging: boolean }>`
 `;
 
 interface ITodo {
-  todo: string;
+  todoText: string;
+  todoId: number;
   index: number;
 }
 
-export default memo(function DraggableCard({ todo, index }: ITodo) {
+export default memo(function DraggableCard({ todoText, todoId, index }: ITodo) {
   return (
-    <Draggable draggableId={todo} index={index}>
+    <Draggable draggableId={String(todoId)} index={index}>
       {(magic, snapshot) => (
         <Cards
           isDragging={snapshot.isDragging}
@@ -26,7 +27,7 @@ export default memo(function DraggableCard({ todo, index }: ITodo) {
           {...magic.draggableProps}
           {...magic.dragHandleProps}
         >
-          {todo}
+          {todoText}
         </Cards>
       )}
     </Draggable>

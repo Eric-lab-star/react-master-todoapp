@@ -83,9 +83,13 @@ export default function App() {
         setTask((prev) => {
           const newTaskObj = { ...prev };
           const sourceCopy = newTaskObj[source.droppableId].slice();
+          const { text } = sourceCopy[source.index];
 
           sourceCopy.splice(source.index, 1);
-          sourceCopy.splice(destination?.index, 0, draggableId);
+          sourceCopy.splice(destination?.index, 0, {
+            id: parseInt(draggableId),
+            text,
+          });
 
           newTaskObj[source.droppableId] = sourceCopy;
 
@@ -97,8 +101,12 @@ export default function App() {
           const sourceCopy = newTaskObj[`${source.droppableId}`].slice();
           const destinationCopy =
             newTaskObj[`${destination?.droppableId}`].slice();
+          const { text } = sourceCopy[source.index];
           sourceCopy.splice(source.index, 1);
-          destinationCopy.splice(destination?.index, 0, draggableId);
+          destinationCopy.splice(destination?.index, 0, {
+            id: parseInt(draggableId),
+            text,
+          });
 
           newTaskObj[`${source.droppableId}`] = sourceCopy;
           newTaskObj[`${destination?.droppableId}`] = destinationCopy;
@@ -115,7 +123,11 @@ export default function App() {
       <DragDropContext onDragEnd={onDragEnd}>
         <Boards>
           {Object.entries(task).map((value) => (
-            <DroppableArea key={value[0]} id={value[0]} value={value[1]} />
+            <DroppableArea
+              key={value[0]}
+              category={value[0]}
+              value={value[1]}
+            />
           ))}
         </Boards>
       </DragDropContext>
