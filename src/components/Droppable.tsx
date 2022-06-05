@@ -3,7 +3,7 @@ import DraggableCard from "./Draggable";
 import styled from "styled-components";
 import { memo } from "react";
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { taskState } from "../atom";
 
 const Board = styled.div`
@@ -54,19 +54,14 @@ interface ITask {
 
 export default memo(function DroppableArea({ value, category }: ITask) {
   const { register, setValue, handleSubmit } = useForm<{ task: string }>();
-  const [task, setTask] = useRecoilState(taskState);
+  const setTask = useSetRecoilState(taskState);
   const onValid = (data: { task: string }) => {
-    console.log(data.task);
+    const newTodo = { text: data.task, id: Date.now() };
     setTask((prev) => {
-      const newObj = { ...prev };
-      const copyArray = newObj[`${category}`].slice();
-      copyArray.push({ text: data.task, id: Math.random() * 100 });
-      newObj[`${category}`] = copyArray;
-      return newObj;
+      return { ...prev, [category]: [...prev[category], newTodo] };
     });
     setValue("task", "");
   };
-  console.log(task[`${category}`]);
   return (
     <Droppable droppableId={category}>
       {(magic, { isDraggingOver, draggingFromThisWith }) => (
