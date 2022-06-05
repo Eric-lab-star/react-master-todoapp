@@ -61,7 +61,7 @@ const Main = styled.div`
   width: 100vw;
   height: 100vh;
   padding: 20px;
-  background-color: #304990;
+  background-color: #dff9fb;
   font-family: santorini-210;
 `;
 
