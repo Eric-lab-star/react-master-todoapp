@@ -109,43 +109,8 @@ export default function App() {
   const onDragEnd = ({ source, destination }: DropResult) => {
     console.log("source:", source);
     console.log("destination:", destination);
-    // if (destination) {
-    //   if (destination.droppableId === source.droppableId) {
-    //     setTask((prev) => {
-    //       const newTaskObj = { ...prev };
-    //       const sourceCopy = newTaskObj[source.droppableId].slice();
-    //       const TaskObjItem = sourceCopy[source.index];
-    //       sourceCopy.splice(source.index, 1);
-    //       sourceCopy.splice(destination?.index, 0, TaskObjItem);
 
-    //       newTaskObj[source.droppableId] = sourceCopy;
-
-    //       return newTaskObj;
-    //     });
-    //   } else if (destination.droppableId === "trashbox") {
-    //     setTask((prev) => {
-    //       const sourceCopy = [...prev[source.droppableId]];
-    //       sourceCopy.splice(source.index, 1);
-    //       return { ...prev, [source.droppableId]: sourceCopy };
-    //     });
-    //   } else {
-    //     setTask((prev) => {
-    //       const newTaskObj = { ...prev };
-    //       const sourceCopy = newTaskObj[`${source.droppableId}`].slice();
-    //       const destinationCopy =
-    //         newTaskObj[`${destination?.droppableId}`].slice();
-    //       const TaskObjItem = sourceCopy[source.index];
-    //       sourceCopy.splice(source.index, 1);
-    //       destinationCopy.splice(destination?.index, 0, TaskObjItem);
-
-    //       newTaskObj[`${source.droppableId}`] = sourceCopy;
-    //       newTaskObj[`${destination?.droppableId}`] = destinationCopy;
-    //       return newTaskObj;
-    //     });
-    //   }
-    // }
-
-    // return null;
+    return null;
   };
   return (
     <Main>

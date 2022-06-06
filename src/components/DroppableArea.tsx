@@ -1,10 +1,20 @@
 import { Droppable } from "react-beautiful-dnd";
-import DraggableCard from "./Draggable";
+import DraggableCard from "./DraggableCards";
 import styled from "styled-components";
-import { FormEvent, memo } from "react";
+import { memo } from "react";
 import { useForm } from "react-hook-form";
 import { useSetRecoilState } from "recoil";
 import { taskState } from "../atom";
+
+interface IArea {
+  isdraggingFromThisWith: boolean;
+  isDraggingOver: boolean;
+}
+
+interface ITask {
+  value: { text: string; id: number }[];
+  category: string;
+}
 
 const Board = styled.div`
   background-color: #badc58;
@@ -20,24 +30,6 @@ const Title = styled.h1`
   color: white;
   font-size: 15px;
   margin-bottom: 10px;
-`;
-
-interface IArea {
-  isdraggingFromThisWith: boolean;
-  isDraggingOver: boolean;
-}
-
-const Area = styled.div<IArea>`
-  margin-top: 20px;
-  background: ${(props) =>
-    props.isDraggingOver
-      ? "#cbef5e"
-      : props.isdraggingFromThisWith
-      ? "#6ab04c"
-      : "#badc58"};
-  width: 100%;
-  height: 100%;
-  border-radius: 5px;
 `;
 
 const Form = styled.form`
@@ -63,10 +55,16 @@ const Form = styled.form`
   }
 `;
 
-interface ITask {
-  value: { text: string; id: number }[];
-  category: string;
-}
+const Area = styled.div<IArea>`
+  margin-top: 20px;
+  background: ${(props) =>
+    props.isDraggingOver
+      ? "#cbef5e"
+      : props.isdraggingFromThisWith
+      ? "#6ab04c"
+      : "#badc58"};
+  border-radius: 5px;
+`;
 
 export default memo(function DroppableArea({ value, category }: ITask) {
   const { register, setValue, handleSubmit } = useForm<{ task: string }>();
@@ -89,7 +87,7 @@ export default memo(function DroppableArea({ value, category }: ITask) {
         />
         <input type={"submit"} value="+" />
       </Form>
-      <Droppable droppableId={category}>
+      <Droppable droppableId={category} direction="vertical">
         {(magic, { isDraggingOver, draggingFromThisWith }) => (
           <Area
             ref={magic.innerRef}
