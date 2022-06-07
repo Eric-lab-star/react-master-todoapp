@@ -1,15 +1,12 @@
 import { atom } from "recoil";
 
-interface ITask {
+export interface ITask {
   [key: string]: { text: string; id: number }[];
 }
 
-export const taskState = atom<ITask>({
-  key: "todostate",
-  default: {},
-});
+const myStorage = localStorage.getItem("task");
 
-export const categoryState = atom({
-  key: "categorystate",
-  default: ["todo", "doing", "done", "1", "2", "3"],
+export const taskState = atom<ITask[]>({
+  key: "todostate",
+  default: JSON.parse(myStorage as string),
 });

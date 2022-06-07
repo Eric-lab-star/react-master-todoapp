@@ -1,7 +1,7 @@
 import { Draggable } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
-import { taskState } from "../atom";
+import { ITask, taskState } from "../atom";
 import DroppableArea from "./DroppableArea";
 
 interface IBoardprops {
@@ -10,11 +10,12 @@ interface IBoardprops {
 }
 
 const Board = styled.div`
-  margin: 10px;
+  margin: 5px;
 `;
 
 export default function DraggableBoard({ category, index }: IBoardprops) {
   const task = useRecoilValue(taskState);
+
   return (
     <Draggable draggableId={"Board:" + category} index={index}>
       {(provided) => (
@@ -23,7 +24,11 @@ export default function DraggableBoard({ category, index }: IBoardprops) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <DroppableArea value={task[category]} category={category} />
+          <DroppableArea
+            value={task[index][category]}
+            category={category}
+            index={index}
+          />
         </Board>
       )}
     </Draggable>

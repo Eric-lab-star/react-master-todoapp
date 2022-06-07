@@ -14,6 +14,7 @@ interface IArea {
 interface ITask {
   value: { text: string; id: number }[];
   category: string;
+  index: number;
 }
 
 const Board = styled.div`
@@ -64,15 +65,24 @@ const Area = styled.div<IArea>`
       ? "#6ab04c"
       : "#badc58"};
   border-radius: 5px;
+  min-height: 150px;
+  min-width: 100%;
 `;
 
-export default memo(function DroppableArea({ value, category }: ITask) {
+export default memo(function DroppableArea({ value, category, index }: ITask) {
   const { register, setValue, handleSubmit } = useForm<{ task: string }>();
   const setTask = useSetRecoilState(taskState);
   const onValid = (data: { task: string }) => {
     const newTodo = { text: data.task, id: Date.now() };
     setTask((prev) => {
-      return { ...prev, [category]: [...prev[category], newTodo] };
+      const newArray = [...prev];
+      const targetBorad = { ...newArray[index] };
+      const copytarget = targetBorad[category].slice();
+      copytarget.push(newTodo);
+      targetBorad[category] = copytarget;
+      newArray[index] = targetBorad;
+      localStorage.setItem("task", JSON.stringify(newArray));
+      return newArray;
     });
     setValue("task", "");
   };
@@ -87,7 +97,7 @@ export default memo(function DroppableArea({ value, category }: ITask) {
         />
         <input type={"submit"} value="+" />
       </Form>
-      <Droppable droppableId={category} direction="vertical">
+      <Droppable droppableId={category} direction="vertical" type="task">
         {(magic, { isDraggingOver, draggingFromThisWith }) => (
           <Area
             ref={magic.innerRef}

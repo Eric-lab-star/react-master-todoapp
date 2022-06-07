@@ -1,7 +1,7 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { taskState } from "./atom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { TrashBox } from "./components/TrashBox";
 import { useForm } from "react-hook-form";
 import DropBoards from "./components/DropBoard";
@@ -99,16 +99,103 @@ export default function App() {
   const setTask = useSetRecoilState(taskState);
 
   const { register, setValue, handleSubmit } = useForm<{ category: string }>();
-  const onValid = (data: { category: string }) => {
+  const onValid = ({ category }: { category: string }) => {
     setTask((prev) => {
-      return { ...prev, [data.category]: [] };
+      const newArray = [...prev, { [category]: [] }];
+      localStorage.setItem("task", JSON.stringify(newArray));
+      return newArray;
     });
+
     setValue("category", "");
   };
 
   const onDragEnd = ({ source, destination }: DropResult) => {
     console.log("source:", source);
     console.log("destination:", destination);
+    if (
+      destination &&
+      destination.droppableId === source.droppableId &&
+      source.droppableId === "boards"
+    ) {
+      setTask((prev) => {
+        const newArray = [...prev];
+        const targetBoard = { ...newArray[source.index] };
+        newArray.splice(source.index, 1);
+        newArray.splice(destination.index, 0, targetBoard);
+        localStorage.setItem("task", JSON.stringify(newArray));
+        return newArray;
+      });
+    }
+
+    if (
+      destination &&
+      destination.droppableId === source.droppableId &&
+      source.droppableId !== "boards"
+    ) {
+      setTask((prev) => {
+        const newArray = [...prev];
+        const [targetObj] = newArray.filter((boardObj) => {
+          return Object.keys(boardObj)[0] === source.droppableId;
+        });
+        const targetIndex = newArray.indexOf(targetObj);
+        const copyCards = targetObj[source.droppableId].slice();
+        const targetCard = copyCards[source.index];
+        copyCards.splice(source.index, 1);
+        copyCards.splice(destination.index, 0, targetCard);
+        const copyTargetObj = { ...targetObj };
+        copyTargetObj[source.droppableId] = copyCards;
+        newArray[targetIndex] = copyTargetObj;
+        localStorage.setItem("task", JSON.stringify(newArray));
+        return newArray;
+      });
+    }
+
+    if (
+      destination &&
+      destination.droppableId !== source.droppableId &&
+      destination.droppableId !== "trashBox"
+    ) {
+      setTask((prev) => {
+        const newArray = [...prev];
+        const [sourceObj] = newArray.filter((boardObj) => {
+          return Object.keys(boardObj)[0] === source.droppableId;
+        });
+        const sourceIndex = newArray.indexOf(sourceObj);
+        const allSourceCard = sourceObj[source.droppableId].slice();
+        const sourceCard = allSourceCard[source.index];
+        allSourceCard.splice(source.index, 1);
+        const copySourceObj = { ...sourceObj };
+        copySourceObj[source.droppableId] = allSourceCard;
+        newArray[sourceIndex] = copySourceObj;
+
+        const [destObj] = newArray.filter((boardObj) => {
+          return Object.keys(boardObj)[0] === destination.droppableId;
+        });
+        const destIndex = newArray.indexOf(destObj);
+        const allDestCard = destObj[destination.droppableId].slice();
+        allDestCard.splice(destination.index, 0, sourceCard);
+        const copyDestObj = { ...destObj };
+        copyDestObj[destination.droppableId] = allDestCard;
+        newArray[destIndex] = copyDestObj;
+        localStorage.setItem("task", JSON.stringify(newArray));
+        return newArray;
+      });
+    }
+    if (destination && destination.droppableId === "trashBox") {
+      setTask((prev) => {
+        const newArray = [...prev];
+        const sourceObjIndex = newArray.findIndex((v) => v[source.droppableId]);
+        const copySourceObj = { ...newArray[sourceObjIndex] };
+
+        const allSourceCard = copySourceObj[source.droppableId].slice();
+        allSourceCard.splice(source.index, 1);
+        copySourceObj[source.droppableId] = allSourceCard;
+
+        newArray[sourceObjIndex] = copySourceObj;
+        localStorage.setItem("task", JSON.stringify(newArray));
+        return newArray;
+      });
+    }
 
     return null;
   };
@@ -128,7 +215,7 @@ export default function App() {
       </CategoryForm>
       <DragDropContext onDragEnd={onDragEnd}>
         <DropBoards />
-        <TrashBox id="trashbox" />
+        <TrashBox />
       </DragDropContext>
     </Main>
   );

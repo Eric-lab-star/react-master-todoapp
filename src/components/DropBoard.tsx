@@ -6,18 +6,26 @@ import DraggableBoard from "./DraggableBoard";
 
 const BoardDropArea = styled.div`
   display: flex;
+  width: 100%;
+  overflow: scroll;
 `;
 
 export default function DropBoards() {
   const task = useRecoilValue(taskState);
-
   return (
-    <Droppable droppableId="boards" direction="horizontal">
+    <Droppable droppableId="boards" direction="horizontal" type="Board">
       {(provided) => (
         <BoardDropArea ref={provided.innerRef} {...provided.droppableProps}>
-          {Object.keys(task).map((category, index) => (
-            <DraggableBoard key={category} category={category} index={index} />
-          ))}
+          {task.map((boardObj, index) => {
+            const category = Object.keys(boardObj)[0];
+            return (
+              <DraggableBoard
+                key={category}
+                category={category}
+                index={index}
+              />
+            );
+          })}
           {provided.placeholder}
         </BoardDropArea>
       )}

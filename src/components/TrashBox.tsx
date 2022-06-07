@@ -11,9 +11,9 @@ export const Trash = styled.div<{ isDraggingOver: boolean }>`
     props.isDraggingOver ? "#27461a" : "#6ab04c"};
 `;
 
-export function TrashBox({ id }: { id: string }) {
+export function TrashBox() {
   return (
-    <Droppable droppableId={id}>
+    <Droppable droppableId={"trashBox"} type="task">
       {(provided, snapshot) => {
         return (
           <Trash
